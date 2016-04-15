@@ -7,7 +7,7 @@
     <RelativeLayout
         android:id="@+id/rl_head"
         android:layout_width="fill_parent"
-        android:layout_height="40dp"
+        android:layout_height="50dp"
         android:layout_gravity="center_horizontal"
         android:background="#fff" >
 
@@ -21,18 +21,18 @@
             android:gravity="center"
             android:text="备忘录"
             android:textColor="#ff3c8dcf"
-            android:textSize="18sp" />
+            android:textSize="12sp" />
     </RelativeLayout>
 
     <EditText
         android:id="@+id/et_seach"
         android:layout_width="250dp"
-        android:singleLine="true"
         android:layout_height="wrap_content"
         android:layout_below="@id/rl_head"
         android:layout_centerInParent="true"
         android:layout_marginTop="10dp"
-        android:hint="备忘录...." />
+        android:hint="备忘录...."
+        android:singleLine="true" />
 
     <ListView
         android:id="@+id/lv_listview"
@@ -55,6 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:background="#fff"
             android:gravity="center"
             android:orientation="vertical" >
 
@@ -70,7 +71,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:text="新建"
-                android:textColor="#ff3c8dcf" />
+                android:textColor="#ff3c8dcf"
+                android:textSize="12sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -92,7 +94,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:text="菜单"
-                android:textColor="#ff3c8dcf" />
+                android:textColor="#ff3c8dcf"
+                android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
 
