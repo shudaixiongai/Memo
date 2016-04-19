@@ -2,6 +2,8 @@ package com.fujitsu.memo.Acitivity;
 
 import android.support.v4.app.Fragment;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -34,10 +36,12 @@ public class MainActivity extends Activity implements OnClickListener {
 	public void onClick(View arg0) {
 		switch (arg0.getId()) {
 		case R.id.tv_add:
+			// 添加备忘录
+			Intent intent = new Intent(MainActivity.this, AddActivity.class);
+			startActivity(intent);
 			break;
+		case R.id.tv_menu:
 
-		default:
-			break;
 		}
 
 	}
