@@ -15,6 +15,9 @@ public class DBManger {
 	private SQLiteDatabase db;
 
 	public DBManger(Context context) {
+		dBhelper = new DBhelper(context);
+		db = dBhelper.getWritableDatabase();
+		dBhelper.onCreate(db);
 	}
 
 	// 添加备忘录到list中
