@@ -12,176 +12,186 @@ import android.database.sqlite.SQLiteDatabase;
 public class DBManger {
 	private DBhelper dbHelper;
 	private SQLiteDatabase db;
-	
-	//构造函数，初始化数据
+
+	// 构造函数，初始化数据
 	public DBManger(Context context) {
-		dbHelper=new DBhelper(context);
-		db=dbHelper.getWritableDatabase();
+		dbHelper = new DBhelper(context);
+		db = dbHelper.getWritableDatabase();
+		db = dbHelper.getReadableDatabase();
 	}
 
-	//添加备忘录
+	public DBManger() {
+	}
+
+	// 添加备忘录
 	public void addMemo(Memo memo) {
 		// TODO Auto-generated method stub
-		String sql="INSERT INTO" + DBhelper.TABLE1_NAME + "VALUES(null,?,?,?,?,?,?)";
-		db.execSQL(sql, new Object[]{memo.getTime(),memo.getTitle(),memo.getType(),
-				memo.getContent(),memo.getCollection(),memo.getRemindtime()
-		});
+		String sql = "INSERT INTO memo(id,time,title,type,content,collection,remindtime) VALUES(null,?,?,?,?,?,?)";
+		db.execSQL(
+				sql,
+				new Object[] { memo.getTime(), memo.getTitle(), memo.getType(),
+						memo.getContent(), memo.getCollection(),
+						memo.getRemindtime() });
 		db.close();
 	}
-	
-	//删除备忘录——根据memoId
+
+	// 删除备忘录——根据memoId
 	public void deleteMemo(Integer memoId) {
 		// TODO Auto-generated method stub
 		db.delete(DBhelper.TABLE1_NAME, "id = ?",
-				new String[]{String.valueOf(memoId)});
+				new String[] { String.valueOf(memoId) });
 		db.close();
 	}
-	
-	//删除备忘录——根据type
-		public void deleteMemoByType(Integer typeId) {
-			// TODO Auto-generated method stub
-			db.delete(DBhelper.TABLE1_NAME, "type = ?",
-					new String[]{String.valueOf(typeId)});
-			db.close();
-		}
-	
-	//编辑备忘录
+
+	// 删除备忘录——根据type
+	public void deleteMemoByType(int typeId) {
+		// TODO Auto-generated method stub
+		db.delete(DBhelper.TABLE1_NAME, "type = ?",
+				new String[] { String.valueOf(typeId) });
+		db.close();
+	}
+
+	// 编辑备忘录
 	public void editMemo(Memo memo) {
 		// TODO Auto-generated method stub
 		ContentValues cv = new ContentValues();
-        cv.put("time", memo.getTime());
-        cv.put("title", memo.getTitle());
-        cv.put("type", memo.getType());
-        cv.put("content", memo.getContent());
-        cv.put("collection", memo.getCollection());
-        cv.put("remindtime", memo.getRemindtime());
+		cv.put("time", memo.getTime());
+		cv.put("title", memo.getTitle());
+		cv.put("type", memo.getType());
+		cv.put("content", memo.getContent());
+		cv.put("collection", memo.getCollection());
+		cv.put("remindtime", memo.getRemindtime());
 
-		db.update(DBhelper.TABLE1_NAME, cv, "id = ?", 
-				new String[]{String.valueOf(memo.getId())});
+		db.update(DBhelper.TABLE1_NAME, cv, "id = ?",
+				new String[] { String.valueOf(memo.getId()) });
 		db.close();
 	}
-	
-	//查找备忘录——根据id
-	public Memo findMemoById(int memoId){
+
+	// 查找备忘录——根据id
+	public Memo findMemoById(int memoId) {
 		Memo memo = new Memo();
-		Cursor cursor = db.query(DBhelper.TABLE1_NAME, 
-				new String[]{"time","title","type","content","collection","remindtime"}, 
-				"id = ?", new String[]{String.valueOf(memoId)}, 
-				null, null, null);
-		if(cursor.getCount() == 0){
-			db.close();
-			return null;
-		}else{
-			cursor.moveToFirst();
-			memo.setId(memoId);
+		Cursor cursor = db.query(DBhelper.TABLE1_NAME, new String[] { "time",
+				"title", "type", "content", "collection", "remindtime" },
+				"id = ?", new String[] { String.valueOf(memoId) }, null, null,
+				null);
+
+		if (cursor.moveToFirst()) {
+			memo.setId(cursor.getInt(cursor.getColumnIndex("id")));
 			memo.setTime(cursor.getString(cursor.getColumnIndex("time")));
 			memo.setTitle(cursor.getString(cursor.getColumnIndex("title")));
 			memo.setContent(cursor.getString(cursor.getColumnIndex("content")));
 			memo.setType(cursor.getInt(cursor.getColumnIndex("type")));
-			memo.setCollection(cursor.getInt(cursor.getColumnIndex("collection")));
-			memo.setRemindtime(cursor.getString(cursor.getColumnIndex("remindtime")));
-			db.close();
-			return memo;
+			memo.setCollection(cursor.getInt(cursor
+					.getColumnIndex("collection")));
+			memo.setRemindtime(cursor.getString(cursor
+					.getColumnIndex("remindtime")));
 		}
+		cursor.close();
+		db.close();
+		return memo;
 	}
-	
-	//查找备忘录——所有
-	public List<Memo> findAllMemos(){
+
+	// 查找备忘录——所有
+	public List<Memo> findAllMemos() {
 		ArrayList<Memo> memos = new ArrayList<Memo>();
-		String sql="SELECT * FROM" + DBhelper.TABLE1_NAME + "ORDER BY time desc";
-		Cursor cursor=db.rawQuery(sql, null);
-		if(cursor.getCount() == 0){
+		String sql = "SELECT * FROM" + DBhelper.TABLE1_NAME
+				+ "ORDER BY time desc";
+		Cursor cursor = db.rawQuery(sql, null);
+		if (cursor.getCount() == 0) {
 			db.close();
 			return null;
-		}else{
-			memos=memoCursorToMemos(cursor);
+		} else {
+			memos = memoCursorToMemos(cursor);
 			db.close();
 			return memos;
 		}
 	}
-	
-	//查找备忘录——根据搜索框输入
-	public List<Memo> findMemosByKey(String key){
-		ArrayList<Memo> memos = new ArrayList<Memo>();
-		Cursor cursor = db.query(DBhelper.TABLE1_NAME, 
-				new String[]{"id","time","title","content","type","collection","remindtime"}, 
-				"title LIKE ?", 
-				new String[]{"%" + key + "%"}, null, null, "time desc");
-		if(cursor.getCount() == 0){
+
+	// 查找备忘录——根据搜索框输入
+	public List<Memo> findMemosByKey(String key) {
+		List<Memo> memos = new ArrayList<Memo>();
+		Cursor cursor = db.query(DBhelper.TABLE1_NAME,
+				new String[] { "id", "time", "title", "content", "type",
+						"collection", "remindtime" }, "title LIKE ?",
+				new String[] { "%" + key + "%" }, null, null, "time desc");
+		if (cursor.getCount() == 0) {
 			db.close();
 			return null;
-		}else{
-			memos=memoCursorToMemos(cursor);
+		} else {
+			memos = memoCursorToMemos(cursor);
 			db.close();
 			return memos;
 		}
 	}
-	
-	//查找备忘录——根据typeid
-	public List<Memo> findMemosByType(int typeId){
-		ArrayList<Memo> memos = new ArrayList<Memo>();
-		Cursor cursor = db.query(DBhelper.TABLE1_NAME, 
-				new String[]{"id","time","title","content","type","collection","remindtime"}, 
-				"type = ?", 
-				new String[]{String.valueOf(typeId)}, null, null, "time desc");
+
+	// 查找备忘录——根据typeid
+	public List<Memo> findMemosByType(int typeId) {
+		List<Memo> memos = new ArrayList<Memo>();
+		Cursor cursor = db.query(DBhelper.TABLE1_NAME,
+				new String[] { "id", "time", "title", "content", "type",
+						"collection", "remindtime" }, "type = ?",
+				new String[] { String.valueOf(typeId) }, null, null,
+				"time desc");
 		memos = memoCursorToMemos(cursor);
 		db.close();
 		return memos;
 	}
-	
-	//将游标内的内容装进ArrayList<Memo>
-	private ArrayList<Memo> memoCursorToMemos(Cursor cursor){
+
+	// 将游标内的内容装进ArrayList<Memo>
+	private ArrayList<Memo> memoCursorToMemos(Cursor cursor) {
 		ArrayList<Memo> memos = new ArrayList<Memo>();
 		cursor.moveToFirst();
-		while(cursor.moveToNext()){
+		while (cursor.moveToNext()) {
 			Memo memo = new Memo();
 			memo.setId(cursor.getInt(cursor.getColumnIndex("id")));
 			memo.setTime(cursor.getString(cursor.getColumnIndex("time")));
 			memo.setTitle(cursor.getString(cursor.getColumnIndex("title")));
 			memo.setContent(cursor.getString(cursor.getColumnIndex("content")));
 			memo.setType(cursor.getInt(cursor.getColumnIndex("type")));
-			memo.setCollection(cursor.getInt(cursor.getColumnIndex("collection")));
-			memo.setRemindtime(cursor.getString(cursor.getColumnIndex("remindtime")));
+			memo.setCollection(cursor.getInt(cursor
+					.getColumnIndex("collection")));
+			memo.setRemindtime(cursor.getString(cursor
+					.getColumnIndex("remindtime")));
 			memos.add(memo);
 		}
 		return memos;
 	}
-	
-	//添加类别
+
+	// 添加类别
 	public void addType(com.fujitsu.memo.model.Type type) {
 		// TODO Auto-generated method stub
-		String sql="INSERT INTO" + DBhelper.TABLE2_NAME + "VALUES(null,?)";
-		db.execSQL(sql, new Object[]{type.getName()});
+		String sql = "INSERT INTO type(id,name) VALUES(null,?)";
+		db.execSQL(sql, new Object[] { type.getName() });
 		db.close();
 	}
-	
-	//删除类别
-	public void deleteType(int typeId){
+
+	// 删除类别
+	public void deleteType(int typeId) {
 		deleteMemoByType(typeId);
-		db.delete(DBhelper.TABLE2_NAME, "id = ?", new String[]{String.valueOf(typeId)});
+		db.delete(DBhelper.TABLE2_NAME, "id = ?",
+				new String[] { String.valueOf(typeId) });
 		db.close();
 	}
-	
-	//编辑类别
-	public void editType(Type type){
+
+	// 编辑类别
+	public void editType(Type type) {
 		ContentValues cv = new ContentValues();
-        cv.put("name", type.getName());
-		db.update(DBhelper.TABLE2_NAME, cv, "id = ?", 
-				new String[]{String.valueOf(type.getId())});
+		cv.put("name", type.getName());
+		db.update(DBhelper.TABLE2_NAME, cv, "id = ?",
+				new String[] { String.valueOf(type.getId()) });
 		db.close();
 	}
-	
-	//查找类别——根据id
-	public Type findTypeById(int typeId){
+
+	// 查找类别——根据id
+	public Type findTypeById(int typeId) {
 		Type type = new Type();
-		Cursor cursor = db.query(DBhelper.TABLE2_NAME, 
-				new String[]{"name"}, 
-				"id = ?", new String[]{String.valueOf(typeId)}, 
-				null, null, null);
-		if(cursor.getCount() == 0){
+		Cursor cursor = db.query(DBhelper.TABLE2_NAME, new String[] { "name" },
+				"id = ?", new String[] { String.valueOf(typeId) }, null, null,
+				null);
+		if (cursor.getCount() == 0) {
 			db.close();
 			return null;
-		}else{
+		} else {
 			cursor.moveToFirst();
 			type.setId(typeId);
 			type.setName(cursor.getString(cursor.getColumnIndex("name")));
@@ -189,27 +199,27 @@ public class DBManger {
 			return type;
 		}
 	}
-	
-	//查找类别——所有
-	public List<Type> findAllTypes(){
+
+	// 查找类别——所有
+	public List<Type> findAllTypes() {
 		ArrayList<Type> types = new ArrayList<Type>();
-		String sql="SELECT * FROM" + DBhelper.TABLE2_NAME;
-		Cursor cursor=db.rawQuery(sql, null);
-		if(cursor.getCount() == 0){
+		String sql = "SELECT * FROM" + DBhelper.TABLE2_NAME;
+		Cursor cursor = db.rawQuery(sql, null);
+		if (cursor.getCount() == 0) {
 			db.close();
 			return null;
-		}else{
-			types=typeCursorToTypes(cursor);
+		} else {
+			types = typeCursorToTypes(cursor);
 			db.close();
 			return types;
 		}
 	}
-	
-	//将游标内的内容装进ArrayList<Type>
-	private ArrayList<Type> typeCursorToTypes(Cursor cursor){
+
+	// 将游标内的内容装进ArrayList<Type>
+	private ArrayList<Type> typeCursorToTypes(Cursor cursor) {
 		ArrayList<Type> types = new ArrayList<Type>();
 		cursor.moveToFirst();
-		while(cursor.moveToNext()){
+		while (cursor.moveToNext()) {
 			Type type = new Type();
 			type.setId(cursor.getInt(cursor.getColumnIndex("id")));
 			type.setName(cursor.getString(cursor.getColumnIndex("name")));
