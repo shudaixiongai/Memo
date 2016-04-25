@@ -22,10 +22,9 @@ public class DBManger {
 	//添加备忘录
 	public void addMemo(Memo memo) {
 		// TODO Auto-generated method stub
-		String sql="INSERT INTO" + DBhelper.TABLE1_NAME + "VALUES(null,?,?,?,?,?,?)";
-		db.execSQL(sql, new Object[]{memo.getTime(),memo.getTitle(),memo.getType(),
-				memo.getContent(),memo.getCollection(),memo.getRemindtime()
-		});
+		String sql="INSERT INTO" + DBhelper.TABLE1_NAME + "(time,title,content,type)" + "VALUES(?,?,?,?)";
+		db.execSQL(sql, new Object[]{memo.getTime(),
+				memo.getTitle(),memo.getContent(),memo.getType()});
 		db.close();
 	}
 	
@@ -53,6 +52,7 @@ public class DBManger {
         cv.put("title", memo.getTitle());
         cv.put("type", memo.getType());
         cv.put("content", memo.getContent());
+        //提出来写一个方法
         cv.put("collection", memo.getCollection());
         cv.put("remindtime", memo.getRemindtime());
 
@@ -61,13 +61,21 @@ public class DBManger {
 		db.close();
 	}
 	
+	//添加收藏或取消收藏
+	//当传入的形参addOrCancel为0时，取消收藏当addOrCancel为1时，添加收藏
+	public void addOrCancelCol(Integer memoId,int addOrCancel) {
+		// TODO Auto-generated method stub
+		String sql="UPDATE" + DBhelper.TABLE1_NAME + "SET collection = " + addOrCancel + " WHERE id = ?";
+		db.execSQL(sql, new String[]{String.valueOf(memoId) });
+	}
+	
 	//查找备忘录——根据id
 	public Memo findMemoById(int memoId){
 		Memo memo = new Memo();
 		Cursor cursor = db.query(DBhelper.TABLE1_NAME, 
 				new String[]{"time","title","type","content","collection","remindtime"}, 
 				"id = ?", new String[]{String.valueOf(memoId)}, 
-				null, null, null);
+				null, null, "id desc");
 		if(cursor.getCount() == 0){
 			db.close();
 			return null;
@@ -88,7 +96,7 @@ public class DBManger {
 	//查找备忘录——所有
 	public List<Memo> findAllMemos(){
 		ArrayList<Memo> memos = new ArrayList<Memo>();
-		String sql="SELECT * FROM" + DBhelper.TABLE1_NAME + "ORDER BY time desc";
+		String sql="SELECT * FROM" + DBhelper.TABLE1_NAME + "ORDER BY id desc";
 		Cursor cursor=db.rawQuery(sql, null);
 		if(cursor.getCount() == 0){
 			db.close();
@@ -106,7 +114,7 @@ public class DBManger {
 		Cursor cursor = db.query(DBhelper.TABLE1_NAME, 
 				new String[]{"id","time","title","content","type","collection","remindtime"}, 
 				"title LIKE ?", 
-				new String[]{"%" + key + "%"}, null, null, "time desc");
+				new String[]{"%" + key + "%"}, null, null, "time desc");//id降序
 		if(cursor.getCount() == 0){
 			db.close();
 			return null;
@@ -123,7 +131,7 @@ public class DBManger {
 		Cursor cursor = db.query(DBhelper.TABLE1_NAME, 
 				new String[]{"id","time","title","content","type","collection","remindtime"}, 
 				"type = ?", 
-				new String[]{String.valueOf(typeId)}, null, null, "time desc");
+				new String[]{String.valueOf(typeId)}, null, null, "id desc");
 		memos = memoCursorToMemos(cursor);
 		db.close();
 		return memos;

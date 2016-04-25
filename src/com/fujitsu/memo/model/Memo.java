@@ -5,9 +5,9 @@ public class Memo {
 	private int id;
 	private String time;
 	private String title;
+	private String content;
 	private int type;
 	private int collection;
-	private String content;
 	private String remindtime;
 	
 	public int getId() {
