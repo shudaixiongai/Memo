@@ -20,23 +20,29 @@ public class DBManger {
 		db = dbHelper.getReadableDatabase();
 	}
 
-	public DBManger() {
-	}
-
 	// 添加备忘录
 	public void addMemo(Memo memo) {
 		// TODO Auto-generated method stub
-		String sql = "INSERT INTO memo(id,time,title,type,content,collection,remindtime) VALUES(null,?,?,?,?,?,?)";
+		String sql = "INSERT INTO memo(time,title,type,content,remindtime) VALUES(?,?,?,?,?)";
 		db.execSQL(
 				sql,
 				new Object[] { memo.getTime(), memo.getTitle(), memo.getType(),
-						memo.getContent(), memo.getCollection(),
-						memo.getRemindtime() });
+						memo.getContent(), memo.getRemindtime()});
 		db.close();
 	}
-
+	
+	//修改收藏状态:0:添加收藏，1：取消收藏
+	public void addOrCancelCol(int addOrCancel,int memoId) {
+		ContentValues cv = new ContentValues();
+		cv.put("collection", addOrCancel);
+		db.update(DBhelper.TABLE1_NAME, cv, "id = ?",
+				new String[] { String.valueOf(memoId) });
+		db.close();
+	}
+	
+	
 	// 删除备忘录——根据memoId
-	public void deleteMemo(Integer memoId) {
+	public void deleteMemo(int memoId) {
 		// TODO Auto-generated method stub
 		db.delete(DBhelper.TABLE1_NAME, "id = ?",
 				new String[] { String.valueOf(memoId) });
@@ -59,7 +65,6 @@ public class DBManger {
 		cv.put("title", memo.getTitle());
 		cv.put("type", memo.getType());
 		cv.put("content", memo.getContent());
-		cv.put("collection", memo.getCollection());
 		cv.put("remindtime", memo.getRemindtime());
 
 		db.update(DBhelper.TABLE1_NAME, cv, "id = ?",
@@ -73,7 +78,7 @@ public class DBManger {
 		Cursor cursor = db.query(DBhelper.TABLE1_NAME, new String[] { "time",
 				"title", "type", "content", "collection", "remindtime" },
 				"id = ?", new String[] { String.valueOf(memoId) }, null, null,
-				null);
+				"id desc");
 
 		if (cursor.moveToFirst()) {
 			memo.setId(cursor.getInt(cursor.getColumnIndex("id")));
@@ -95,9 +100,10 @@ public class DBManger {
 	public List<Memo> findAllMemos() {
 		ArrayList<Memo> memos = new ArrayList<Memo>();
 		String sql = "SELECT * FROM" + DBhelper.TABLE1_NAME
-				+ "ORDER BY time desc";
+				+ "ORDER BY id desc";
 		Cursor cursor = db.rawQuery(sql, null);
 		if (cursor.getCount() == 0) {
+			cursor.close();
 			db.close();
 			return null;
 		} else {
@@ -113,8 +119,9 @@ public class DBManger {
 		Cursor cursor = db.query(DBhelper.TABLE1_NAME,
 				new String[] { "id", "time", "title", "content", "type",
 						"collection", "remindtime" }, "title LIKE ?",
-				new String[] { "%" + key + "%" }, null, null, "time desc");
+				new String[] { "%" + key + "%" }, null, null, "id desc");
 		if (cursor.getCount() == 0) {
+			cursor.close();
 			db.close();
 			return null;
 		} else {
@@ -131,7 +138,7 @@ public class DBManger {
 				new String[] { "id", "time", "title", "content", "type",
 						"collection", "remindtime" }, "type = ?",
 				new String[] { String.valueOf(typeId) }, null, null,
-				"time desc");
+				"id desc");
 		memos = memoCursorToMemos(cursor);
 		db.close();
 		return memos;
@@ -158,10 +165,10 @@ public class DBManger {
 	}
 
 	// 添加类别
-	public void addType(com.fujitsu.memo.model.Type type) {
+	public void addType(String name) {
 		// TODO Auto-generated method stub
-		String sql = "INSERT INTO type(id,name) VALUES(null,?)";
-		db.execSQL(sql, new Object[] { type.getName() });
+		String sql = "INSERT INTO type(name) VALUES(?)";
+		db.execSQL(sql, new String[]{name});
 		db.close();
 	}
 
@@ -187,14 +194,16 @@ public class DBManger {
 		Type type = new Type();
 		Cursor cursor = db.query(DBhelper.TABLE2_NAME, new String[] { "name" },
 				"id = ?", new String[] { String.valueOf(typeId) }, null, null,
-				null);
+				"id desc");
 		if (cursor.getCount() == 0) {
+			cursor.close();
 			db.close();
 			return null;
 		} else {
 			cursor.moveToFirst();
 			type.setId(typeId);
 			type.setName(cursor.getString(cursor.getColumnIndex("name")));
+			cursor.close();
 			db.close();
 			return type;
 		}
@@ -206,7 +215,7 @@ public class DBManger {
 		String sql = "SELECT * FROM" + DBhelper.TABLE2_NAME;
 		Cursor cursor = db.rawQuery(sql, null);
 		if (cursor.getCount() == 0) {
-			db.close();
+			cursor.close();
 			return null;
 		} else {
 			types = typeCursorToTypes(cursor);
@@ -225,6 +234,7 @@ public class DBManger {
 			type.setName(cursor.getString(cursor.getColumnIndex("name")));
 			types.add(type);
 		}
+		cursor.close();
 		return types;
 	}
 }
