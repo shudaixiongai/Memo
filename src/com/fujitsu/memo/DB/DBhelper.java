@@ -21,22 +21,22 @@ public class DBhelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		// 创建memo表
-		String sql = "CREATE TABLE memo (id int(10) NOT NULL AUTO_INCREMENT,"
+		String sql = "CREATE TABLE memo("
+				+ "id INTEGER PRIMARY KEY,"
 				+ "time varchar(128) NOT NULL,"
 				+ "title varchar(255) NOT NULL,"
-				+ "content varchar(21845) DEFAULT NULL,"
-				+ "type int(10) DEFAULT NULL,"
-				+ "collection int(10) NOT NULL DEFAULT '0',"
-				+ "remindtime varchar(128) DEFAULT NULL,"
-				+ "PRIMARY KEY (`id`),"
-				+ "KEY `memo_type_wj` (`type`),"
-				+ "CONSTRAINT `memo_type_wj` FOREIGN KEY (`type`) REFERENCES `type` (`id`)";
+				+ "content varchar(21845) DEFAULT 'NULL',"
+				+ "type INTEGER REFERENCES 'type' ('id') ON UPDATE CASCADE ON DELETE CASCADE,"
+				+ "collection INTEGER NOT NULL DEFAULT '0',"
+				+ "remindtime varchar(128) DEFAULT 'NULL')";
+
 		db.execSQL(sql);
+
 		// 创建 type表
-		String type_sql = "create table type(id INTEGER NOT NULL,name varchar(255) "
-				+ "NOT NULL,"
-				+ "PRIMARY KEY(id))";
-		db.execSQL(type_sql);
+		String type_sql = "create table type("
+				+ "id INTEGER PRIMARY KEY,"
+				+ "name varchar(255) NOT NULL)";
+		db.execSQL(type_sql); 
 	}
 
 	// 版本更新时调用

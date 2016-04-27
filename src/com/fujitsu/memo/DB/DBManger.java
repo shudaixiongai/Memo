@@ -99,8 +99,8 @@ public class DBManger {
 	// 查找备忘录——所有
 	public List<Memo> findAllMemos() {
 		ArrayList<Memo> memos = new ArrayList<Memo>();
-		String sql = "SELECT * FROM" + DBhelper.TABLE1_NAME
-				+ "ORDER BY id desc";
+		String sql = "SELECT * FROM " + DBhelper.TABLE1_NAME
+				+ " ORDER BY id desc";
 		Cursor cursor = db.rawQuery(sql, null);
 		if (cursor.getCount() == 0) {
 			cursor.close();
@@ -212,7 +212,7 @@ public class DBManger {
 	// 查找类别——所有
 	public List<Type> findAllTypes() {
 		ArrayList<Type> types = new ArrayList<Type>();
-		String sql = "SELECT * FROM" + DBhelper.TABLE2_NAME;
+		String sql = "SELECT * FROM " + DBhelper.TABLE2_NAME;
 		Cursor cursor = db.rawQuery(sql, null);
 		if (cursor.getCount() == 0) {
 			cursor.close();
