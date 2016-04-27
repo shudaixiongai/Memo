@@ -4,5 +4,5 @@
     <string name="app_name">Memo</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-
+    <string name="details_remind">addRemindTime</string>
 </resources>
