@@ -8,6 +8,15 @@
         android:minSdkVersion="8"
         android:targetSdkVersion="19" />
 
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+    <!-- 调用系统闹钟的权限设置 -->
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -22,7 +31,23 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        //主界面
+        <activity android:name="com.fujitsu.memo.Acitivity.AddActivity" >
+            <!-- 指定 AddActivity的父类为MainActivity-->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.fujitsu.memo.Acitivity.MainActivity"/>             
+        </activity>
+        <activity android:name="com.fujitsu.memo.Acitivity.EditActivity" >
+        </activity>
+        <activity android:name="com.fujitsu.memo.Acitivity.TypeActivity" >
+        </activity>
+        <activity android:name="com.fujitsu.memo.Acitivity.AlarmActivity"
+            android:theme="@style/Theme.CustomDialog"
+            android:launchMode="singleInstance"
+            >
+        </activity>
+        <receiver android:name="com.fujitsu.memo.Acitivity.AlarmReceiver" android:process=":newinst">
+        </receiver>
     </application>
 
 </manifest>

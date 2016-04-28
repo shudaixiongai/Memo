@@ -22,7 +22,7 @@ public class DBManger {
 	//添加备忘录
 	public void addMemo(Memo memo) {
 		// TODO Auto-generated method stub
-		String sql="INSERT INTO" + DBhelper.TABLE1_NAME + "(time,title,content,type)" + "VALUES(?,?,?,?)";
+		String sql="INSERT INTO " + DBhelper.TABLE1_NAME + " (time,title,content,type) VALUES (?,?,?,?)";
 		db.execSQL(sql, new Object[]{memo.getTime(),
 				memo.getTitle(),memo.getContent(),memo.getType()});
 		db.close();
@@ -52,8 +52,6 @@ public class DBManger {
         cv.put("title", memo.getTitle());
         cv.put("type", memo.getType());
         cv.put("content", memo.getContent());
-        //提出来写一个方法
-        cv.put("collection", memo.getCollection());
         cv.put("remindtime", memo.getRemindtime());
 
 		db.update(DBhelper.TABLE1_NAME, cv, "id = ?", 
@@ -114,7 +112,7 @@ public class DBManger {
 		Cursor cursor = db.query(DBhelper.TABLE1_NAME, 
 				new String[]{"id","time","title","content","type","collection","remindtime"}, 
 				"title LIKE ?", 
-				new String[]{"%" + key + "%"}, null, null, "time desc");//id降序
+				new String[]{"%" + key + "%"}, null, null, "id desc");
 		if(cursor.getCount() == 0){
 			db.close();
 			return null;
@@ -140,7 +138,6 @@ public class DBManger {
 	//将游标内的内容装进ArrayList<Memo>
 	private ArrayList<Memo> memoCursorToMemos(Cursor cursor){
 		ArrayList<Memo> memos = new ArrayList<Memo>();
-		cursor.moveToFirst();
 		while(cursor.moveToNext()){
 			Memo memo = new Memo();
 			memo.setId(cursor.getInt(cursor.getColumnIndex("id")));
@@ -201,7 +198,7 @@ public class DBManger {
 	//查找类别——所有
 	public List<Type> findAllTypes(){
 		ArrayList<Type> types = new ArrayList<Type>();
-		String sql="SELECT * FROM" + DBhelper.TABLE2_NAME;
+		String sql="SELECT * FROM " + DBhelper.TABLE2_NAME;
 		Cursor cursor=db.rawQuery(sql, null);
 		if(cursor.getCount() == 0){
 			db.close();
@@ -216,7 +213,6 @@ public class DBManger {
 	//将游标内的内容装进ArrayList<Type>
 	private ArrayList<Type> typeCursorToTypes(Cursor cursor){
 		ArrayList<Type> types = new ArrayList<Type>();
-		cursor.moveToFirst();
 		while(cursor.moveToNext()){
 			Type type = new Type();
 			type.setId(cursor.getInt(cursor.getColumnIndex("id")));
