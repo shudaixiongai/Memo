@@ -29,14 +29,15 @@ public class DBhelper extends SQLiteOpenHelper {
 				+ "type INTEGER REFERENCES 'type' ('id') ON UPDATE CASCADE ON DELETE CASCADE,"
 				+ "collection INTEGER NOT NULL DEFAULT '0',"
 				+ "remindtime varchar(128) DEFAULT 'NULL')";
-
 		db.execSQL(sql);
-
+		
 		// 创建 type表
 		String type_sql = "create table type("
 				+ "id INTEGER PRIMARY KEY,"
 				+ "name varchar(255) NOT NULL)";
 		db.execSQL(type_sql); 
+		String defaultTypeString="insert into " + TABLE2_NAME + " (name) values(?)";
+		db.execSQL(defaultTypeString, new String[]{"default"});
 	}
 
 	// 版本更新时调用
@@ -46,5 +47,4 @@ public class DBhelper extends SQLiteOpenHelper {
 		 db.execSQL("DROP TABLE IS EXIST"+TABLE2_NAME);  //删除表2      
 		 onCreate(db);//重新创建数据库
 	}
-
 }

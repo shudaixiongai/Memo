@@ -31,14 +31,6 @@ public class DBManger {
 		db.close();
 	}
 	
-	//修改收藏状态:0:添加收藏，1：取消收藏
-	public void addOrCancelCol(int addOrCancel,int memoId) {
-		ContentValues cv = new ContentValues();
-		cv.put("collection", addOrCancel);
-		db.update(DBhelper.TABLE1_NAME, cv, "id = ?",
-				new String[] { String.valueOf(memoId) });
-		db.close();
-	}
 	
 	
 	// 删除备忘录——根据memoId
@@ -69,6 +61,24 @@ public class DBManger {
 
 		db.update(DBhelper.TABLE1_NAME, cv, "id = ?",
 				new String[] { String.valueOf(memo.getId()) });
+		db.close();
+	}
+	
+	//修改收藏状态:0:添加收藏，1：取消收藏
+	public void addOrCancelCol(int addOrCancel,int memoId) {
+		ContentValues cv = new ContentValues();
+		cv.put("collection", addOrCancel);
+		db.update(DBhelper.TABLE1_NAME, cv, "id = ?",
+				new String[] { String.valueOf(memoId) });
+		db.close();
+	}
+	
+	//修改提醒时间，根据memoId
+	public void updateRemindTime(String remindTime,int memoId){
+		ContentValues cv = new ContentValues();
+		cv.put("remindtime", remindTime);
+		db.update(DBhelper.TABLE1_NAME, cv, "id = ?",
+				new String[] { String.valueOf(memoId) });
 		db.close();
 	}
 
@@ -174,10 +184,12 @@ public class DBManger {
 
 	// 删除类别
 	public void deleteType(int typeId) {
-		deleteMemoByType(typeId);
-		db.delete(DBhelper.TABLE2_NAME, "id = ?",
-				new String[] { String.valueOf(typeId) });
-		db.close();
+		if(typeId != 0){
+			deleteMemoByType(typeId);
+			db.delete(DBhelper.TABLE2_NAME, "id = ?",
+					new String[] { String.valueOf(typeId) });
+			db.close();
+		}
 	}
 
 	// 编辑类别
@@ -214,20 +226,14 @@ public class DBManger {
 		ArrayList<Type> types = new ArrayList<Type>();
 		String sql = "SELECT * FROM " + DBhelper.TABLE2_NAME;
 		Cursor cursor = db.rawQuery(sql, null);
-		if (cursor.getCount() == 0) {
-			cursor.close();
-			return null;
-		} else {
-			types = typeCursorToTypes(cursor);
-			db.close();
-			return types;
-		}
+		types = typeCursorToTypes(cursor);
+		db.close();
+		return types;
 	}
 
 	// 将游标内的内容装进ArrayList<Type>
 	private ArrayList<Type> typeCursorToTypes(Cursor cursor) {
 		ArrayList<Type> types = new ArrayList<Type>();
-		cursor.moveToFirst();
 		while (cursor.moveToNext()) {
 			Type type = new Type();
 			type.setId(cursor.getInt(cursor.getColumnIndex("id")));
