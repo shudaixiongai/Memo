@@ -30,8 +30,9 @@ public class DBhelper extends SQLiteOpenHelper {
 				+ "remindtime varchar(128) DEFAULT 'NULL')";
 		db.execSQL(sql);
 		// 创建 type表
-		String type_sql = "create table type(id INTEGER PRIMARY KEY,name varchar(255) NOT NULL)";
-		db.execSQL(type_sql);
+		// String type_sql =
+		// "create table type(id INTEGER PRIMARY KEY,name varchar(255) NOT NULL)";
+		// db.execSQL(type_sql);
 	}
 
 	// 版本更新时调用

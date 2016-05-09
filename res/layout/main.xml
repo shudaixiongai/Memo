@@ -21,7 +21,7 @@
             android:gravity="center"
             android:text="备忘录"
             android:textColor="#ff3c8dcf"
-            android:textSize="12sp" />
+            android:textSize="18sp" />
     </RelativeLayout>
 
     <EditText
@@ -31,18 +31,25 @@
         android:layout_below="@id/rl_head"
         android:layout_centerInParent="true"
         android:layout_marginTop="10dp"
+        android:background="@null"
+        android:textSize="12sp"
         android:hint="备忘录...."
         android:singleLine="true" />
 
-    <ListView
+    <com.fujitsu.memo.Acitivity.SlideListView2
         android:id="@+id/lv_listview"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="300dp"
         android:layout_below="@id/et_seach"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp" >
-    </ListView>
+        android:layout_marginTop="10dp"
+        android:cacheColorHint="#00000000"
+        android:divider="#dddbdb"
+        android:dividerHeight="1.0px"
+        android:drawSelectorOnTop="false"
+        android:listSelector="@android:color/transparent"
+        android:scrollbars="none" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -52,6 +59,7 @@
         android:orientation="horizontal" >
 
         <LinearLayout
+            android:id="@+id/ll_host_add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"

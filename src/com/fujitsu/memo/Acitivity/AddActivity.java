@@ -1,6 +1,5 @@
 package com.fujitsu.memo.Acitivity;
 
-
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -32,6 +31,7 @@ import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
@@ -51,18 +51,18 @@ import com.fujitsu.memo.model.Type;
 
 /**
  * @author jy_dingsufu
- *
+ * 
  */
 public class AddActivity extends Activity {
 	public DBManger dbManger;
 	public Memo memo;
 	public List<Memo> list;
-	public List<String> spinnerList=null;
-	public List<com.fujitsu.memo.model.Type> typeList=null;
+	public List<String> spinnerList = null;
+	public List<com.fujitsu.memo.model.Type> typeList = null;
 	public ArrayAdapter<String> arrayAdapter;
 	public Button mBtnIamge, mBtnSubmit, mBtnAlarm;
-	public EditText mEdContent,mEdTitle;
-	public TextView mTvAlarm,mTvTime;
+	public EditText mEdContent, mEdTitle;
+	public TextView mTvAlarm, mTvTime;
 	public Spinner mSpinner;
 	public static final int PICK_PIC = 0;
 	public static final int DIALOG_TIME = 1;
@@ -73,27 +73,30 @@ public class AddActivity extends Activity {
 	private AlarmManager alarmManager = null;
 	public static Calendar c = null;
 	public static final String TAG = "com.fujitsu.memo.Acitivity.AddActivity";
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB) 
+
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_add);
-		//显示层级式导航
-		if (NavUtils.getParentActivityName(AddActivity.this)!=null) {
-			if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB) {
+		// 显示层级式导航
+		if (NavUtils.getParentActivityName(AddActivity.this) != null) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 				getActionBar().setDisplayHomeAsUpEnabled(true);
 			}
-			
+
 		}
-		
+
 		initViews();
 		getTypeList();
-		//适配器
-		arrayAdapter= new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spinnerList);
-        //设置样式
-		arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        //加载适配器
-        mSpinner.setAdapter(arrayAdapter);
+		// 适配器
+		arrayAdapter = new ArrayAdapter<String>(this,
+				android.R.layout.simple_spinner_item, spinnerList);
+		// 设置样式
+		arrayAdapter
+				.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		// 加载适配器
+		mSpinner.setAdapter(arrayAdapter);
 
 		// 通过getViewTreeObserver获得ViewTreeObserver对象
 		ViewTreeObserver vto = mEdContent.getViewTreeObserver();
@@ -119,9 +122,9 @@ public class AddActivity extends Activity {
 		mBtnAlarm.setOnClickListener(new OnClickListener() {
 			@SuppressWarnings("deprecation")
 			public void onClick(View arg0) {
-				c=Calendar.getInstance();
-				c.setTimeInMillis(System.currentTimeMillis());//设置当前时间到Calendar中
-				showDialog(ID_DATEPICKER_DIALOG);//显示datePicker选择器
+				c = Calendar.getInstance();
+				c.setTimeInMillis(System.currentTimeMillis());// 设置当前时间到Calendar中
+				showDialog(ID_DATEPICKER_DIALOG);// 显示datePicker选择器
 			}
 		});
 
@@ -129,61 +132,68 @@ public class AddActivity extends Activity {
 
 			@Override
 			public void onClick(View arg0) {
-				//设置闹钟
-				Intent intent = new Intent(
-						AddActivity.this,AlarmReceiver.class); // 创建Intent对象
-				PendingIntent pi = PendingIntent.getBroadcast(AddActivity.this,  0, intent, 0); // 创建PendingIntent
-				alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);//得到一个AlarmManager对象
-				alarmManager.set(AlarmManager.RTC_WAKEUP,c.getTimeInMillis(), pi); // 设置闹钟，当前时间就立即唤醒
-				//Toast.makeText(AddActivity.this, "闹钟设置成功",Toast.LENGTH_LONG).show();// 提示用户
-				
-				
-				String title=mEdTitle.getText().toString().trim();
-				String time=mTvTime.getText().toString();
-				String alarmTime=mTvAlarm.getText().toString();
+				if (c != null) {
+					// 设置闹钟
+					Intent intent = new Intent(AddActivity.this,
+							AlarmReceiver.class); // 创建Intent对象
+					PendingIntent pi = PendingIntent.getBroadcast(
+							AddActivity.this, 0, intent, 0); // 创建PendingIntent
+					alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);// 得到一个AlarmManager对象
+					alarmManager.set(AlarmManager.RTC_WAKEUP,
+							c.getTimeInMillis(), pi); // 设置闹钟，当前时间就立即唤醒
+					// Toast.makeText(AddActivity.this,
+					// "闹钟设置成功",Toast.LENGTH_LONG).show();// 提示用户
+				}
+
+				String title = mEdTitle.getText().toString().trim();
+				String time = mTvTime.getText().toString();
+				String alarmTime = mTvAlarm.getText().toString();
 				String mContent = mEdContent.getText().toString();
-				String typeName=mSpinner.getSelectedItem().toString();
-				
-				 if (TextUtils.isEmpty(title)) {
+				String typeName = mSpinner.getSelectedItem().toString();
+
+				if (TextUtils.isEmpty(title)) {
 					Toast.makeText(AddActivity.this, "标题不能为空！",
 							Toast.LENGTH_SHORT).show();
 					return;
-				}else if (TextUtils.isEmpty(mContent)) {
+				} else if (TextUtils.isEmpty(mContent)) {
 					Toast.makeText(AddActivity.this, "内容不能为空！",
 							Toast.LENGTH_SHORT).show();
 					return;
-				}else{
-					memo=new Memo();//新建一个Memo对象
-					memo.setTitle(title);//设定标题
-					memo.setTime(time);//设定编写的时间
-					if (alarmTime!=null) {
-						memo.setRemindtime(new aboutTime().calenderToString(c));//设定闹钟时间
+				} else {
+					memo = new Memo();// 新建一个Memo对象
+					memo.setTitle(title);// 设定标题
+					memo.setTime(time);// 设定编写的时间
+					if (alarmTime != null) {
+						if (c != null) {
+							memo.setRemindtime(new aboutTime()
+									.calenderToString(c));// 设定闹钟时间
+
+						}
 					}
-					memo.setContent(mContent);//设定内容
-					//设定type的值
+					memo.setContent(mContent);// 设定内容
+					// 设定type的值
 					for (int i = 0; i < typeList.size(); i++) {
-						Type type=typeList.get(i);
+						Type type = typeList.get(i);
 						if (type.getName().equals(typeName)) {
 							memo.setType(type.getId());
 							break;
 						}
 					}
-					
+
 					dbManger = new DBManger(AddActivity.this);
 					dbManger.addMemo(memo);
-					Intent i = new Intent(AddActivity.this,
-							MainActivity.class);//这边的要改下，不要忘记惹！！！
+					Intent i = new Intent(AddActivity.this, MainActivity.class);// 这边的要改下，不要忘记惹！！！
 					//
 					//
 					//
-//					
+					//
 					startActivity(i);
 				}
 
 			}
 		});
 	}
-	
+
 	/**
 	 * 获取组件
 	 */
@@ -196,38 +206,37 @@ public class AddActivity extends Activity {
 		mTvAlarm = (TextView) findViewById(R.id.tv_add_alarm);
 		mTvTime = (TextView) findViewById(R.id.tv_add_time);
 		mSpinner = (Spinner) findViewById(R.id.sp_add_spinner);
-		
-		mTvTime.setText(new aboutTime().dateToString(new Date(System.currentTimeMillis())));
+
+		mTvTime.setText(new aboutTime().dateToString(new Date(System
+				.currentTimeMillis())));
 	}
-	
-	
-	/** (non-Javadoc)
+
+	/**
+	 * (non-Javadoc)
+	 * 
 	 * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
-	 * 为activity添加层级式导航事件
+	 *      为activity添加层级式导航事件
 	 */
 	@Override
-	  public boolean onOptionsItemSelected(MenuItem item)
-	  {
-	    switch(item.getItemId())
-	    {
-	      case android.R.id.home:
-	    	  if (NavUtils.getParentActivityName(AddActivity.this)!=null) {
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			if (NavUtils.getParentActivityName(AddActivity.this) != null) {
 				NavUtils.navigateUpFromSameTask(AddActivity.this);
 			}
-	        return true;  
-	    }
-	    return super.onOptionsItemSelected(item);
-	  }
-	
-	
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
 	/**
 	 * 获取所有类别
 	 */
-	private void getTypeList(){
-		spinnerList=new ArrayList<String>();
-		typeList=new ArrayList<com.fujitsu.memo.model.Type>();
+	private void getTypeList() {
+		spinnerList = new ArrayList<String>();
+		typeList = new ArrayList<com.fujitsu.memo.model.Type>();
 		dbManger = new DBManger(AddActivity.this);
-		typeList=dbManger.findAllTypes();
+		typeList = dbManger.findAllTypes();
 		for (int i = 0; i < typeList.size(); i++) {
 			spinnerList.add(typeList.get(i).getName());
 		}
@@ -356,63 +365,68 @@ public class AddActivity extends Activity {
 		}
 		return bitmap;
 	}
-	
-	
+
 	@SuppressWarnings("unused")
 	@Override
-    protected Dialog onCreateDialog(int id) {
-    	// TODO Auto-generated method stub
-		
-		int year=c.get(Calendar.YEAR);//获取年份
-		int month=c.get(Calendar.MONTH);//获取月份
-		int day=c.get(Calendar.DAY_OF_MONTH);//获取日数
-		int hour = c.get(Calendar.HOUR_OF_DAY);//获取选择的时间
-		int minute = c.get(Calendar.MINUTE);//获取选择的分钟
-    	Dialog dialog = null;
-    	switch(id) {
-    	case ID_DATEPICKER_DIALOG :
-    		if (dialog!=null) {
+	protected Dialog onCreateDialog(int id) {
+		// TODO Auto-generated method stub
+
+		int year = c.get(Calendar.YEAR);// 获取年份
+		int month = c.get(Calendar.MONTH);// 获取月份
+		int day = c.get(Calendar.DAY_OF_MONTH);// 获取日数
+		int hour = c.get(Calendar.HOUR_OF_DAY);// 获取选择的时间
+		int minute = c.get(Calendar.MINUTE);// 获取选择的分钟
+		Dialog dialog = null;
+		switch (id) {
+		case ID_DATEPICKER_DIALOG:
+			if (dialog != null) {
 				dialog.dismiss();
 			}
-    		
-    		dialog =new DatePickerDialog(AddActivity.this, new DatePickerDialog.OnDateSetListener(){
 
-				@SuppressWarnings("deprecation")
-				@Override
-				public void onDateSet(DatePicker arg0, int arg1, int arg2,
-						int arg3) {
-					
-					c.set(Calendar.YEAR, arg1); // 设置闹钟的年份
-					c.set(Calendar.MONTH, arg2); // 设置闹钟的月份
-					c.set(Calendar.DAY_OF_MONTH, arg3); // 设置闹钟的日期
-					showDialog(ID_TIME_DIALOG);
-				}} , year, month, day);
-    		break;
-    	case ID_TIME_DIALOG :
-    		dialog = new TimePickerDialog(AddActivity.this,
+			dialog = new DatePickerDialog(AddActivity.this,
+					new DatePickerDialog.OnDateSetListener() {
+
+						@SuppressWarnings("deprecation")
+						@Override
+						public void onDateSet(DatePicker arg0, int arg1,
+								int arg2, int arg3) {
+
+							c.set(Calendar.YEAR, arg1); // 设置闹钟的年份
+							c.set(Calendar.MONTH, arg2); // 设置闹钟的月份
+							c.set(Calendar.DAY_OF_MONTH, arg3); // 设置闹钟的日期
+							showDialog(ID_TIME_DIALOG);
+						}
+					}, year, month, day);
+			break;
+		case ID_TIME_DIALOG:
+			dialog = new TimePickerDialog(AddActivity.this,
 					new TimePickerDialog.OnTimeSetListener() {
-				public void onTimeSet(TimePicker timePicker,
-						int hourOfDay, int minute) {
-					c.setTimeInMillis(c.getTimeInMillis()); // 设置Calendar对象
-					c.set(Calendar.HOUR_OF_DAY, hourOfDay); // 设置闹钟小时数
-					c.set(Calendar.MINUTE, minute); // 设置闹钟的分钟数
-					c.set(Calendar.SECOND, 0); // 设置闹钟的秒数
-					c.set(Calendar.MILLISECOND, 0); // 设置闹钟的毫秒数
-					
-					mTvAlarm.setText("设置的闹钟时间为：" + c.get(Calendar.YEAR)+"-"+(c.get(Calendar.MONTH)+1)+"-"+c.get(Calendar.DAY_OF_MONTH)+"  "+c.get(Calendar.HOUR_OF_DAY) + ":"+ c.get(Calendar.MINUTE));
-					mTvAlarm.setVisibility(View.VISIBLE);
-					
-				}
-			}, hour, minute, true);
-    		break;
-    	default :
-    		break;
-    	}
-    	if (dialog != null) {
-    		Log.i(TAG, dialog.toString());
-    	} else {
-    		Log.i(TAG, "dialog = null");
-    	}
-    	return dialog;
-    }
+						public void onTimeSet(TimePicker timePicker,
+								int hourOfDay, int minute) {
+							c.setTimeInMillis(c.getTimeInMillis()); // 设置Calendar对象
+							c.set(Calendar.HOUR_OF_DAY, hourOfDay); // 设置闹钟小时数
+							c.set(Calendar.MINUTE, minute); // 设置闹钟的分钟数
+							c.set(Calendar.SECOND, 0); // 设置闹钟的秒数
+							c.set(Calendar.MILLISECOND, 0); // 设置闹钟的毫秒数
+
+							mTvAlarm.setText("设置的闹钟时间为：" + c.get(Calendar.YEAR)
+									+ "-" + (c.get(Calendar.MONTH) + 1) + "-"
+									+ c.get(Calendar.DAY_OF_MONTH) + "  "
+									+ c.get(Calendar.HOUR_OF_DAY) + ":"
+									+ c.get(Calendar.MINUTE));
+							mTvAlarm.setVisibility(View.VISIBLE);
+
+						}
+					}, hour, minute, true);
+			break;
+		default:
+			break;
+		}
+		if (dialog != null) {
+			Log.i(TAG, dialog.toString());
+		} else {
+			Log.i(TAG, "dialog = null");
+		}
+		return dialog;
+	}
 }
